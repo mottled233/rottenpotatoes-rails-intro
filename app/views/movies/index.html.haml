@@ -4,10 +4,22 @@
 %table#movies
   %thead
     %tr
-      %th Movie Title
+    -if @order_by=="title"
+      %th.hilite= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
       %th Rating
-      %th Release Date
+      %th= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
       %th More Info
+    -if @order_by=="release_date"
+      %th= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
+      %th Rating
+      %th.hilite= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
+      %th More Info
+    -if @order_by==nil
+      %th= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
+      %th Rating
+      %th= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
+      %th More Info
+        
   %tbody
     - @movies.each do |movie|
       %tr
