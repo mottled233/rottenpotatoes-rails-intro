@@ -1,23 +1,21 @@
 -#  This file is app/views/movies/index.html.haml
 %h1 All Movies
 
+= form_tag movies_path, id: :ratings_form,method: :get do
+  =hidden_field_tag 'filter', 'true'
+  Include:
+  - @all_ratings.each do |rating|
+    = rating
+    = check_box_tag "ratings[#{rating}]"
+  = submit_tag 'Refresh', id: :ratings_submit
+  
 %table#movies
   %thead
     %tr
-    -if @order_by=="title"
-      %th.hilite= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
+      
+      %th{class: @title_class}= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
       %th Rating
-      %th= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
-      %th More Info
-    -if @order_by=="release_date"
-      %th= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
-      %th Rating
-      %th.hilite= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
-      %th More Info
-    -if @order_by==nil
-      %th= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
-      %th Rating
-      %th= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
+      %th{class: @title_class}= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
       %th More Info
         
   %tbody
