@@ -6,7 +6,7 @@
   Include:
   - @all_ratings.each do |rating|
     = rating
-    = check_box_tag "ratings[#{rating}]"
+    = check_box_tag "ratings[#{rating}]", 1, @ratings.include?(rating), id: "ratings_#{rating}"
   = submit_tag 'Refresh', id: :ratings_submit
   
 %table#movies
@@ -15,7 +15,7 @@
       
       %th{class: @title_class}= link_to "Movie Title",{ controller: :movies, action: :index, order_by: "title"}
       %th Rating
-      %th{class: @title_class}= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
+      %th{class: @date_class}= link_to "Release Date",{ controller: :movies, action: :index, order_by: "release_date"} 
       %th More Info
         
   %tbody

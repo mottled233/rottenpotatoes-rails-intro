@@ -13,26 +13,41 @@ class MoviesController < ApplicationController
   def index
     @all_ratings=Movie.get_ratings
     if params[:ratings]
-      ratings = params[:ratings].keys
+      @ratings = params[:ratings].keys
+      session[:rating_filter] = @ratings
     else
-      if params[:filter]
-        ratings = []
+      if !session[:rating_filter].blank?
+        @ratings = session[:rating_filter]
+        query = {}
+        @ratings.each do |rating|
+          query["ratings[#{rating}]"] = 1
+        end
+        query[:order_by]=params[:order_by] ? params[:order_by] : session[:movie_order]
+        redirect_to movies_path(query)
       else
-        ratings = Movie.get_ratings
+        @ratings = Movie.get_ratings
+        session[:rating_filter] = @ratings
       end
     end
     
     
-    @movies = Movie.all.where(rating: ratings)
+    @movies = Movie.all.where(rating: @ratings)
     
-    if (@order_by = params[:order_by])
-      if @order_by == "title"
-        @movies = @movies.order @order_by
-        @title_class = "hilite"
-      elsif @order_by == "release_date"
-        @movies = @movies.order release_date: :desc
-        @date_class = "hilite"
-      end
+    if params[:order_by]
+      @order_by = params[:order_by]
+      session[:movie_order] = @order_by
+    elsif session[:movie_order]
+      @order_by = session[:movie_order]
+    else
+      @order_by = "default"
+    end
+    
+    if @order_by == "title"
+      @movies = @movies.order @order_by
+      @title_class = "hilite"
+    elsif @order_by == "release_date"
+      @movies = @movies.order release_date: :desc
+      @date_class = "hilite"
     end
       
   end
