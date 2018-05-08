@@ -12,44 +12,24 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings=Movie.get_ratings
-    if params[:ratings]
-      @ratings = params[:ratings].keys
-      session[:rating_filter] = @ratings
-    else
-      if !session[:rating_filter].blank?
-        @ratings = session[:rating_filter]
-        query = {}
-        @ratings.each do |rating|
-          query["ratings[#{rating}]"] = 1
-        end
-        query[:order_by]=params[:order_by] ? params[:order_by] : session[:movie_order]
-        redirect_to movies_path(query)
-      else
-        @ratings = Movie.get_ratings
-        session[:rating_filter] = @ratings
-      end
+    @ratings = params[:ratings] || session[:rating_filter] || {}
+    @ratings = (@all_ratings.map {|option| [option,1]}).to_h if @ratings.blank?
+    
+    sort = params[:order_by] || session[:movie_order] 
+    case sort
+    when "title"
+      @order_by,@title_class = {"title"=>"asc"},"hilite"
+    when "release_date"
+      @order_by,@title_class = {"release_date"=>"desc"},"hilite"
     end
     
-    
-    @movies = Movie.all.where(rating: @ratings)
-    
-    if params[:order_by]
-      @order_by = params[:order_by]
-      session[:movie_order] = @order_by
-    elsif session[:movie_order]
-      @order_by = session[:movie_order]
-    else
-      @order_by = "default"
+    if @ratings!=session[:rating_filter] || sort!=session[:movie_order]
+      # debugger
+      session[:rating_filter],session[:movie_order] = @ratings, sort
+      redirect_to movies_path(order_by: sort, ratings: @ratings) and return
     end
-    
-    if @order_by == "title"
-      @movies = @movies.order @order_by
-      @title_class = "hilite"
-    elsif @order_by == "release_date"
-      @movies = @movies.order release_date: :desc
-      @date_class = "hilite"
-    end
-      
+        
+    @movies = Movie.all.where(rating: @ratings.keys).order(@order_by)
   end
 
   def new
